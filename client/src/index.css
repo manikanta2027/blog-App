@@ -32,3 +32,63 @@ body{
     text-decoration:none;
     color:white;
 }
+
+/* ===== HEADER STYLES ===== */
+.navbar-custom {
+  background: linear-gradient(90deg, #0f172a, #1e293b);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.logo-brand {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.brand-accent {
+  color: #38bdf8;
+}
+
+.nav-btn {
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.nav-btn-outline {
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.nav-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.nav-btn-ghost {
+  color: #fff;
+  opacity: 0.9;
+}
+
+.nav-btn-ghost:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.nav-btn-solid {
+  background: #38bdf8;
+  color: #0f172a;
+}
+
+.nav-btn-solid:hover {
+  background: #0ea5e9;
+  color: #0f172a;
+}

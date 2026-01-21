@@ -22,9 +22,22 @@ const userCommentSchema = new mongoose.Schema({
     comment:{
         type:String,
         required:true,
-    }
+    },
+     userId: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    commentedAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
     
-},{"strict":"throw"})
+{"strict":"throw"})
 
 
 const articleSchema = new mongoose.Schema({
@@ -60,6 +73,7 @@ const articleSchema = new mongoose.Schema({
         type:Boolean,
         required:true,
     }
+
 
 },{"strict":"throw"})
 

@@ -12,9 +12,8 @@ const Articles = () => {
 
 
   async function getArticles(){
-
-    //get jwt token
-    const token = await getToken();
+    try{
+          const token = await getToken();
     
       let res = await axios.get('http://localhost:3000/author-api/articles',{
         headers:{
@@ -22,13 +21,16 @@ const Articles = () => {
 
         }
       });
-      if(res.data.message ==='articles'){
+    
+    //get jwt token
+   
+      
          setArticles(res.data.payload);
         setError('');
-      }else{
+      }catch(err){
         setError(res.data.message);
       }
-    } 
+}
     console.log(error);
 
   //goto specific article page
@@ -66,9 +68,21 @@ const Articles = () => {
                     <p className = 'card-text'>
                       {typeof articleObj.content === 'string' ? articleObj.content.substring(0,80)+"....": 'Content not available'}
                     </p>
-                    <button className = "custom-btn btn-4" onClick = {()=>gotoArticleById(articleObj)}>
-                      Read more
-                    </button>
+                    <button
+  className="custom-btn btn-4"
+  style={{
+    backgroundColor: "#0ea5e9",
+    color: "white",
+    border: "none",
+    padding: "10px 18px",
+    borderRadius: "12px",
+    fontWeight: "600"
+  }}
+  onClick={() => gotoArticleById(articleObj)}
+>
+  Read more
+</button>
+
                   </div>
                   <div className = "card-footer">
                     <small className = "text-body-secondary">

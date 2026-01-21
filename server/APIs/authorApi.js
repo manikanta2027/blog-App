@@ -9,6 +9,15 @@ const {requireAuth,clerkMiddleware} = require("@clerk/express");
 require("dotenv").config();
 userApp.use(clerkMiddleware());
 
+const tokenRequired = (req, res, next) => {
+  const authHeader = req.headers.authorization || "";
+  if (!authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Token required" });
+  }
+  next();
+};
+
+
 //create a user or author
 userApp.post("/author",expressAsyncHandler(createUserOrAuthor));
 userApp.post("/article",expressAsyncHandler(async(req,res)=>{
@@ -20,14 +29,19 @@ userApp.post("/article",expressAsyncHandler(async(req,res)=>{
     res.status(201).send({message:"Article published", payload:articleObj});
 }));
 
-userApp.get("/articles",requireAuth({signInUrl:"/unauthorized"}),expressAsyncHandler(async(req,res)=>{
-    const listOfArticles = await Article.find({isArticleActive: true});
-    res.status(200).send({message:"articles", payload:listOfArticles})
-}))
+userApp.get(
+  "/articles",
+  tokenRequired,
+  expressAsyncHandler(async (req, res) => {
+    const listOfArticles = await Article.find({ isArticleActive: true });
+    res.status(200).send({ message: "articles", payload: listOfArticles });
+  })
+);
 
-userApp.get("/unauthorized",(req,res)=>{
-    res.send({message:"unauthorized request"});
-})
+
+// userApp.get("/unauthorized",(req,res)=>{
+//     res.send({message:"unauthorized request"});
+// })
 
 //modify an article by article Id
 
@@ -46,5 +60,14 @@ userApp.put("/articles/:articleId",expressAsyncHandler(async(req,res)=>{
     const dbRes = await Article.findByIdAndUpdate(req.params.articleId,{...modifiedArticle},{returnOriginal : false})
     res.status(200).send({message:"article deleted or restored",payload:dbRes})
 }))
+
+// ✅ ERROR HANDLER (ADD THIS AT END)
+userApp.use((err, req, res, next) => {
+  if (err?.name === "ClerkExpressRequireAuthError") {
+    return res.status(401).json({ message: "unauthorized request" });
+  }
+  res.status(500).json({ message: "server error" });
+});
+
 
 module.exports = userApp;

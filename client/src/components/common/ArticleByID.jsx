@@ -8,13 +8,15 @@ import { MdDelete, MdRestore } from "react-icons/md";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react";
+
 
 import "./ArticleByID.css";
 
 const ArticleByID = () => {
   const { state } = useLocation();
   const { currentUser } = useContext(userAuthorContextObj);
-
+  const {user} = useUser();
   const [editArticleStatus, setEditArticleStatus] = useState(false);
   const [currentState, setCurrentState] = useState(state);
   const [commentStatus, setCommentStatus] = useState("");
@@ -123,6 +125,8 @@ const ArticleByID = () => {
   async function addComment(commentObj) {
     try {
       commentObj.nameOfUser = currentUser.firstName;
+      commentObj.userId = user?.id;  // ✅ store clerk user id
+      commentObj.email = currentUser.email;
 
       let res = await axios.put(
         `http://localhost:3000/user-api/comment/${currentState.articleId}`,
@@ -138,6 +142,22 @@ const ArticleByID = () => {
       console.log("Error adding comment:", err);
     }
   }
+
+  async function deleteComment(commentId) {
+  try {
+    let res = await axios.delete(
+      `http://localhost:3000/user-api/comment/${currentState.articleId}/${commentId}`
+    );
+
+    if (res.data.message === "comment deleted") {
+      setCommentStatus("Comment deleted ✅");
+      setCurrentState(res.data.payload);
+    }
+  } catch (err) {
+    console.log("Error deleting comment:", err);
+  }
+}
+
 
   return (
     <div className="article-page">
@@ -219,10 +239,20 @@ const ArticleByID = () => {
                     {currentState.comments.length === 0 ? (
                       <p className="text-secondary mb-0">No comments yet...</p>
                     ) : (
-                      currentState.comments.map((commentObj) => (
+                        currentState.comments.map((commentObj) => (
                         <div key={commentObj._id} className="comment-item">
-                          <div className="comment-user">
-                            {commentObj?.nameOfUser}
+                        <div className="d-flex justify-content-between align-items-center">
+                        <div className="comment-user">{commentObj?.nameOfUser}</div>
+
+                        {/* ✅ show delete button only if this comment belongs to logged-in user */}
+                        {commentObj?.userId === user?.id && (
+                        <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => deleteComment(commentObj._id)}
+                      >
+                    Delete
+                  </button>
+                )}
                           </div>
                           <div>{commentObj?.comment}</div>
                         </div>

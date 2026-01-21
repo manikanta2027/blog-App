@@ -12,7 +12,9 @@ async function createUserOrAuthor(req, res, model) {
         if(newuserAuthor.role===userInDb.role){
             res.status(200).send({message:newuserAuthor.role, payload:userInDb});
         }   else{
-            res.status(200).send({message:"Invalid role"});
+                res.status(400).send({
+        message: `This email is already registered as ${userInDb.role.toUpperCase()}. Please use another email to sign up as ${newuserAuthor.role.toUpperCase()}.`
+    });
         }         
     }else{
         let newUser = new UserAuthor(newuserAuthor);

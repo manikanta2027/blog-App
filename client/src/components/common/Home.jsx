@@ -5,10 +5,14 @@ import { useUser } from '@clerk/clerk-react';
 import axios from 'axios';
 
 function Home() {
+ 
+
   const { currentUser, setCurrentUser } = useContext(userAuthorContextObj);
   const { isSignedIn, user, isLoaded } = useUser();
   const [error,setError] = useState("");
   const navigate  = useNavigate();
+
+ 
 
   // console.log("isSignedIn : ",isSignedIn);
   console.log("user : ",user);
@@ -20,17 +24,16 @@ function Home() {
     const selectedRole = e.target.value;
 
     const updatedUser = { ...currentUser, role: selectedRole };
-    setCurrentUser(updatedUser);
-
-    if (selectedRole === 'author') {
+    // setCurrentUser(updatedUser);
+    try{
+            if (selectedRole === 'author') {
       const res = await axios.post(
         'http://localhost:3000/author-api/author',
         updatedUser
       );
       if (res.data.message === 'author') {
         setCurrentUser(prev => ({ ...prev, ...res.data.payload }));
-      }else{
-        setError(message);
+        navigate(`/author-profile/${updatedUser.email}`);
       }
     }
 
@@ -41,89 +44,134 @@ function Home() {
       );
       if (res.data.message === 'user') {
         setCurrentUser(prev => ({ ...prev, ...res.data.payload }));
-      }else{
-        setError(res.data.message);
+         navigate(`/user-profile/${updatedUser.email}`);
       }
     }
   }
-
-  useEffect(() => {
-    if (isLoaded && user) {
-      setCurrentUser({
-        ...currentUser,
-        firstName: user?.firstName,
-        lastName: user?.lastName,
-        email: user?.emailAddresses[0].emailAddress,
-        profileImageUrl: user?.imageUrl,
-      })};
-    },[isLoaded, user]);
-
-    useEffect(()=>{
-      if(currentUser?.role ==='user' && error.length ===0){
-        navigate(`/user-profile/${currentUser.email}`);
+  catch(err) {
+        setError(err.response?.data?.message || "An error occurred");
       }
-      if(currentUser?.role === 'author' && error.length ===0){
-        console.log('first');
-        navigate(`/author-profile/${currentUser.email}`);
-      }
-    },[currentUser?.role]);
+    }
+  
+
+    useEffect(() => {
+  if (isLoaded && user) {
+    setCurrentUser(prev => ({
+      ...(prev || {}),
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      email: user?.emailAddresses[0].emailAddress,
+      profileImageUrl: user?.imageUrl,
+    }));
+  }
+}, [isLoaded, user]);
+  
+  
+    if (!isLoaded) {
+  return <h3 className="text-center mt-5">Loading...</h3>;
+}
+
+    // useEffect(()=>{
+    //   if(currentUser?.role ==='user' && error.length ===0){
+    //     navigate(`/user-profile/${currentUser.email}`);
+    //   }
+    //   if(currentUser?.role === 'author' && error.length ===0){
+    //     console.log('first');
+    //     navigate(`/author-profile/${currentUser.email}`);
+    //   }
+    // },[currentUser?.role]);
+  console.log("HOME RENDER", { isSignedIn, isLoaded, user, currentUser });
 
   return (
-    <div className="container">
-      {!isSignedIn && (
-        <div>
-          <p className="lead">This is a blog app</p>
-          <p className="lead">This is a blog app</p>
-          <p className="lead">This is a blog app</p>
-        </div>
-      )}
+  <div className="container">
 
-      {isSignedIn && (
-        <div>
-          <div className="d-flex justify-content-evenly align-items-center bg-info p-3">
-            <img
-              src={user?.imageUrl}
-              width="100"
-              className="rounded-circle"
-              alt="profile"
+    {/* ✅ NOT SIGNED IN */}
+    {!isSignedIn && (
+      <div className="home-hero text-center mt-5">
+        <h1 className="home-title">
+          Welcome to <span className="home-accent">BlogSphere</span> 📝
+        </h1>
+
+        <h2 className="home-subtitle mt-3">
+          A modern blog platform where ideas meet creativity. Explore articles,
+          share your thoughts, and connect with authors across categories.
+        </h2>
+
+        <div className="row mt-5 g-4">
+          <div className="col-md-4">
+            <div className="home-card">
+              <h4>📚 Explore Articles</h4>
+              <p>Read blogs across tech, travel, finance, lifestyle and more.</p>
+            </div>
+          </div>
+
+          <div className="col-md-4">
+            <div className="home-card">
+              <h4>✍️ Become an Author</h4>
+              <p>Publish articles, edit them anytime, and build your audience.</p>
+            </div>
+          </div>
+
+          <div className="col-md-4">
+            <div className="home-card">
+              <h4>💬 Engage & Comment</h4>
+              <p>Join discussions, share opinions, and learn from others.</p>
+            </div>
+          </div>
+        </div>
+
+        <p className="home-note mt-5">
+          Sign in to get started 🚀
+        </p>
+      </div>
+    )}
+
+    {/* ✅ SIGNED IN (ROLE SELECTION PAGE) */}
+    {isSignedIn && (
+      <div className="mt-4">
+        <div className="d-flex justify-content-evenly align-items-center bg-info p-3 rounded">
+          <img
+            src={user?.imageUrl}
+            width="90"
+            className="rounded-circle"
+            alt="profile"
+          />
+          <p className="display-6 mb-0">{user?.firstName}</p>
+        </div>
+
+        <p className="lead mt-4 fs-3 text-center fw-bold">Select role</p>
+
+        {error.length > 0 && (
+          <p className="text-danger fs-5 text-center">{error}</p>
+        )}
+
+        <div className="d-flex py-3 justify-content-center">
+          <div className="form-check me-4 fs-4">
+            <input
+              type="radio"
+              name="role"
+              value="author"
+              className="form-check-input"
+              onChange={onSelectRole}
             />
-            <p className="display-6">{user?.firstName}</p>
+            <label className="form-check-label">Author</label>
           </div>
 
-          <p className="lead">Select role</p>
-          {error.length > 0 && (
-            <p className = "text-danger fs-5" style = {{fontFamily:"sans-serif"}}>
-              {error}   
-            </p>
-          )}
-
-          <div className="d-flex py-3 justify-content-center">
-            <div className="form-check me-4">
-              <input
-                type="radio"
-                name="role"
-                value="author"
-                className="form-check-input"
-                onChange={onSelectRole}
-              />
-              <label className="form-check-label">Author</label>
-            </div>
-
-            <div className="form-check">
-              <input
-                type="radio"
-                name="role"
-                value="user"
-                className="form-check-input"
-                onChange={onSelectRole}
-              />
-              <label className="form-check-label">User</label>
-            </div>
+          <div className="form-check fs-4">
+            <input
+              type="radio"
+              name="role"
+              value="user"
+              className="form-check-input"
+              onChange={onSelectRole}
+            />
+            <label className="form-check-label">User</label>
           </div>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    )}
+  </div>
+);
 }
 
 export default Home;

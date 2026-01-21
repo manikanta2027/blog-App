@@ -24,6 +24,23 @@ userApp.put("/comment/:articleId",expressAsyncHandler(async(req,res)=>{
 
 }));
 
+userApp.delete(
+  "/comment/:articleId/:commentId",
+  expressAsyncHandler(async (req, res) => {
+    const { articleId, commentId } = req.params;
+
+    // remove comment by _id
+    const updatedArticle = await Article.findOneAndUpdate(
+      { articleId },
+      { $pull: { comments: { _id: commentId } } },
+      { new: true }
+    );
+
+    res.status(200).send({ message: "comment deleted", payload: updatedArticle });
+  })
+);
+
+
 
 
 module.exports = userApp;

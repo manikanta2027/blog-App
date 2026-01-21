@@ -16,33 +16,34 @@ const Header = () => {
   }
 
   return (
-    <nav className="header d-flex justify-content-between align-items-center px-4 py-2">
-      {/* Left side logo */}
-      <div>
-        <Link to="/" className="text-decoration-none fw-bold text-white">
-          LOGO
-        </Link>
-      </div>
+    <nav className="header navbar-custom d-flex justify-content-between align-items-center px-4 py-3">
+    
+     <Link to="/" className="logo-brand text-decoration-none">
+     Blog<span className="brand-accent">Sphere</span>
+   </Link>
+     
+     
 
       {/* Right side links */}
       <ul className="d-flex align-items-center gap-4 list-unstyled mb-0">
         {!isSignedIn ? (
           <>
-            <li>
-              <Link to="" className="text-decoration-none text-white">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to="signin" className="text-decoration-none text-white">
-                Signin
-              </Link>
-            </li>
-            <li>
-              <Link to="signup" className="text-decoration-none text-white">
-                Signup
-              </Link>
-            </li>
+           <li>
+  <Link to="" className="nav-btn nav-btn-outline">
+    Home
+  </Link>
+</li>
+<li>
+  <Link to="signin" className="nav-btn nav-btn-ghost">
+    Sign in
+  </Link>
+</li>
+<li>
+  <Link to="signup" className="nav-btn nav-btn-solid">
+    Sign up
+  </Link>
+</li>
+
           </>
         ) : (
           <li className="d-flex align-items-center gap-3">
