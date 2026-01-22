@@ -43,7 +43,7 @@ function PostArticle() {
 
     try {
       let res = await axios.post(
-        "http://localhost:3000/author-api/article",
+        `${import.meta.env.VITE_BACKEND_URL}/author-api/article`,
         articleObj
       );
 

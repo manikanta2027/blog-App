@@ -48,7 +48,7 @@ const ArticleByID = () => {
         currentDate.getFullYear();
 
       let res = await axios.put(
-        `http://localhost:3000/author-api/article/${articleAfterChanges._id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/author-api/article/${articleAfterChanges._id}`,
         articleAfterChanges,
         {
           headers: {
@@ -79,7 +79,7 @@ const ArticleByID = () => {
       const updatedArticle = { ...currentState, isArticleActive: false };
 
       let res = await axios.put(
-        `http://localhost:3000/author-api/articles/${currentState._id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/author-api/articles/${currentState._id}`,
         updatedArticle,
         {
           headers: {
@@ -104,7 +104,7 @@ const ArticleByID = () => {
       const updatedArticle = { ...currentState, isArticleActive: true };
 
       let res = await axios.put(
-        `http://localhost:3000/author-api/articles/${currentState._id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/author-api/articles/${currentState._id}`,
         updatedArticle,
         {
           headers: {
@@ -129,7 +129,7 @@ const ArticleByID = () => {
       commentObj.email = currentUser.email;
 
       let res = await axios.put(
-        `http://localhost:3000/user-api/comment/${currentState.articleId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/user-api/comment/${currentState.articleId}`,
         commentObj
       );
 
@@ -146,7 +146,7 @@ const ArticleByID = () => {
   async function deleteComment(commentId) {
   try {
     let res = await axios.delete(
-      `http://localhost:3000/user-api/comment/${currentState.articleId}/${commentId}`
+      `${import.meta.env.VITE_BACKEND_URL}/user-api/comment/${currentState.articleId}/${commentId}`
     );
 
     if (res.data.message === "comment deleted") {

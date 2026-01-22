@@ -32,6 +32,11 @@ app.use((err,req,res,next)=>{
     return next(err);
   }
 
+  app.get("/", (req, res) => {
+  res.send("Backend is running ✅");
+});
+
+
   res.status(500).send({ message: err.message });
 });
 

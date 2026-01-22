@@ -15,7 +15,7 @@ const Articles = () => {
     try{
           const token = await getToken();
     
-      let res = await axios.get('http://localhost:3000/author-api/articles',{
+      let res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/author-api/articles`,{
         headers:{
           Authorization:`Bearer ${token}`
 
