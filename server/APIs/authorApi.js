@@ -1,14 +1,12 @@
 const express = require("express");
-const userApp = express.Router();
-// const authorApp = require("../models/userAuthorModel");
-// const authorApp = express.Router();
-const expressAsyncHandler = require("express-async-handler")
-const createUserOrAuthor = require("./createUserOrAuthor");
+const authorApp = express.Router();
+const expressAsyncHandler = require("express-async-handler");
 const Article = require("../models/articleModel");
-const {requireAuth,clerkMiddleware} = require("@clerk/express");
-require("dotenv").config();
-userApp.use(clerkMiddleware());
+const { requireAuth, clerkMiddleware } = require("@clerk/express");
 
+authorApp.use(clerkMiddleware());
+
+// middleware to check token
 const tokenRequired = (req, res, next) => {
   const authHeader = req.headers.authorization || "";
   if (!authHeader.startsWith("Bearer ")) {
@@ -17,19 +15,20 @@ const tokenRequired = (req, res, next) => {
   next();
 };
 
-
-//create a user or author
-userApp.post("/author",expressAsyncHandler(createUserOrAuthor));
-userApp.post("/article",expressAsyncHandler(async(req,res)=>{
-     
+// publish article (AUTHOR)
+authorApp.post(
+  "/article",
+  requireAuth(),
+  expressAsyncHandler(async (req, res) => {
     const newArticleObj = req.body;
-    console.log("Article being saved:", newArticleObj);
     const newArticle = new Article(newArticleObj);
     const articleObj = await newArticle.save();
-    res.status(201).send({message:"Article published", payload:articleObj});
-}));
+    res.status(201).send({ message: "Article published", payload: articleObj });
+  })
+);
 
-userApp.get(
+// get all active articles
+authorApp.get(
   "/articles",
   tokenRequired,
   expressAsyncHandler(async (req, res) => {
@@ -38,36 +37,43 @@ userApp.get(
   })
 );
 
-
-// userApp.get("/unauthorized",(req,res)=>{
-//     res.send({message:"unauthorized request"});
-// })
-
-//modify an article by article Id
-
-userApp.put("/article/:articleId",requireAuth({signInUrl:"/unauthorized"}),expressAsyncHandler(async(req,res)=>{
-
+// modify article
+authorApp.put(
+  "/article/:articleId",
+  requireAuth(),
+  expressAsyncHandler(async (req, res) => {
     const modifiedArticle = req.body;
-    const dbRes = await Article.findByIdAndUpdate(req.params.articleId,{...modifiedArticle},{returnOriginal : false})
-    res.status(200).send({message:"article modified",payload:dbRes})
-}))
+    const dbRes = await Article.findByIdAndUpdate(
+      req.params.articleId,
+      { ...modifiedArticle },
+      { new: true }
+    );
+    res.status(200).send({ message: "article modified", payload: dbRes });
+  })
+);
 
-//delete(soft delete) an article by article Id
-
-userApp.put("/articles/:articleId",expressAsyncHandler(async(req,res)=>{
-
+// soft delete / restore
+authorApp.put(
+  "/articles/:articleId",
+  expressAsyncHandler(async (req, res) => {
     const modifiedArticle = req.body;
-    const dbRes = await Article.findByIdAndUpdate(req.params.articleId,{...modifiedArticle},{returnOriginal : false})
-    res.status(200).send({message:"article deleted or restored",payload:dbRes})
-}))
+    const dbRes = await Article.findByIdAndUpdate(
+      req.params.articleId,
+      { ...modifiedArticle },
+      { new: true }
+    );
+    res
+      .status(200)
+      .send({ message: "article deleted or restored", payload: dbRes });
+  })
+);
 
-// ✅ ERROR HANDLER (ADD THIS AT END)
-userApp.use((err, req, res, next) => {
+// error handler
+authorApp.use((err, req, res, next) => {
   if (err?.name === "ClerkExpressRequireAuthError") {
     return res.status(401).json({ message: "unauthorized request" });
   }
   res.status(500).json({ message: "server error" });
 });
 
-
-module.exports = userApp;
+module.exports = authorApp;
