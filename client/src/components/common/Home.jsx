@@ -28,7 +28,7 @@ function Home() {
     try{
             if (selectedRole === 'author') {
       const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/author-api/author`,
+        `${import.meta.env.VITE_BACKEND_URL}/user-api/author`,
         updatedUser
       );
       if (res.data.message === 'author') {
